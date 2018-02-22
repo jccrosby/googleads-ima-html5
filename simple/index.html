@@ -7,7 +7,7 @@
   <body>
     <div id="mainContainer">
       <div id="content">
-        <video id="contentElement" controls="true" autoplay="true">
+        <video id="contentElement" autoplay>
           <source src="http://rmcdn.2mdn.net/Demo/vast_inspector/android.mp4"></source>
           <source src="http://rmcdn.2mdn.net/Demo/vast_inspector/android.webm"></source>
         </video>
@@ -16,6 +16,17 @@
     </div>
     <div><button id="requestAds">Request Ads</button></div>
     <div><button id="stopButton">Stop Ads</button></div>
+
+    <ol>
+      <li>Update hosts file to serve from an mlb.com URL. e.g local.mlb.com</li>
+      <li>Request ads</li>
+      <li>Then stop on a VPAID ad</li>
+      <li>Not all, but some will freeze the player.</br>
+        Seems to be when the last ad -> wrapper -> AdSystem === "AdSense/AdX".</br>
+        <a href="http://local.mlb.com:3333/simple/ad-response-with-freeze.xml" target="_blank">Example XML response with ad that caused a freeze.</a>
+      </li>
+    </ol>
+
     <script type="text/javascript" src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
     <script type="text/javascript" src="ads.js"></script>
   </body>
