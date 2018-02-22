@@ -7,13 +7,18 @@ var adsManager;
 var adsLoader;
 var adDisplayContainer;
 var intervalTimer;
-var playButton;
+var requestAdsBtn;
+var stopButton;
 var videoContent;
+var pod = 0;
+var mridx = 1;
 
 function init() {
   videoContent = document.getElementById('contentElement');
-  playButton = document.getElementById('playButton');
-  playButton.addEventListener('click', playAds);
+  requestAdsBtn = document.getElementById('requestAds');
+  stopButton = document.getElementById('stopButton');
+  requestAdsBtn.addEventListener('click', playAds);
+  stopButton.addEventListener('click', stopAds);
   setUpIMA();
 }
 
@@ -37,22 +42,8 @@ function setUpIMA() {
   var contentEndedListener = function() {adsLoader.contentComplete();};
   videoContent.onended = contentEndedListener;
 
-  // Request video ads.
-  var adsRequest = new google.ima.AdsRequest();
-  adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
-      'sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&' +
-      'impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&' +
-      'cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=';
+  adDisplayContainer.initialize();
 
-  // Specify the linear and nonlinear slot sizes. This helps the SDK to
-  // select the correct creative if multiple are returned.
-  adsRequest.linearAdSlotWidth = 640;
-  adsRequest.linearAdSlotHeight = 400;
-
-  adsRequest.nonLinearAdSlotWidth = 640;
-  adsRequest.nonLinearAdSlotHeight = 150;
-
-  adsLoader.requestAds(adsRequest);
 }
 
 
@@ -65,18 +56,63 @@ function createAdDisplayContainer() {
 
 function playAds() {
   // Initialize the container. Must be done via a user action on mobile devices.
-  videoContent.load();
-  adDisplayContainer.initialize();
+  //videoContent.load();
 
   try {
+
+    // Request video ads.
+    var adsRequest = new google.ima.AdsRequest();
+    /* adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
+        'sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&' +
+        'impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&' +
+        'cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator='; */
+
+    // Specify the linear and nonlinear slot sizes. This helps the SDK to
+    // select the correct creative if multiple are returned.
+    adsRequest.linearAdSlotWidth = 640;
+    adsRequest.linearAdSlotHeight = 400;
+
+    adsRequest.nonLinearAdSlotWidth = 640;
+    adsRequest.nonLinearAdSlotHeight = 150;
+
+    pod++;
+    mridx++;
+
     // Initialize the ads manager. Ad rules playlist will start at this time.
-    adsManager.init(640, 360, google.ima.ViewMode.NORMAL);
     // Call play to start showing the ad. Single video and overlay ads will
     // start at this time; the call will be ignored for ad rules.
-    adsManager.start();
+    adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/live/ads?' +
+    '&sz=1920x1080&iu=%2F2605%2Fqa_mlb.tv%2Fdesktop_live&gdfp_req=1&env=vp&' +
+    'output=xml_vast3&unviewed_position_start=1' +
+    '&url=https%3A%2F%2Fqa-aws.mlb.com%2Ftv%2Fg490149%2Fv1252107383%3Fsdkenv%3Dmock' +
+    '%26disableMaxdate%3Dtrue%26debug%3Dtrue%23game%3D490149%2Ctfs%3D20170407_171000%2C' +
+    'game_state%3Dpreview&description_url=mlb.tv&correlator=1926798333616904&pmnd=0' +
+    '&pmxd=120000&pmad=-1&vpos=midroll&pp=mlbtv_csai_live&ad_rule=0&asset&cust_params' +
+    '&cmsid=tbd&kuid=soksahz8o&ksg=r6cgifu96%2Crs81lgpbq%2Crujycglsz&vid=1252107383' +
+    '&ppid=37066638&eid=634360200&sdkv=h.3.192.0&sdki=3c0d&scor=1016211052941933' +
+    '&adk=3123136492&u_so=l&osd=2&frm=0&sdr=1&is_amp=0&afvsz=450x50%2C468x60%2C480x70' +
+    '&ged=ve4_td4292_tt4174_pd4292_la3107000_er0.0.0.0_vi0.0.960.1119_vp0_ts190_eb16427' +
+    '&pod=' + pod +
+    '&mridx=' + mridx;
+
+    adsLoader.requestAds(adsRequest);
+
+
+  } catch (adError) {
+
+    console.error('adError', adError);
+
+  }
+}
+
+function stopAds() {
+  // Initialize the container. Must be done via a user action on mobile devices.
+  try {
+    // Initialize the ads manager. Ad rules playlist will start at this time.
+    adsManager.stop();
   } catch (adError) {
     // An error may be thrown if there was a problem with the VAST response.
-    videoContent.play();
+    console.log('stop error', adError);
   }
 }
 
@@ -85,8 +121,7 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   var adsRenderingSettings = new google.ima.AdsRenderingSettings();
   adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
   // videoContent should be set to the content video element.
-  adsManager = adsManagerLoadedEvent.getAdsManager(
-      videoContent, adsRenderingSettings);
+  adsManager = adsManagerLoadedEvent.getAdsManager(videoContent, adsRenderingSettings);
 
   // Add listeners to the required events.
   adsManager.addEventListener(
@@ -112,6 +147,11 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   adsManager.addEventListener(
       google.ima.AdEvent.Type.COMPLETE,
       onAdEvent);
+
+
+  adsManager.init(640, 360, google.ima.ViewMode.NORMAL);
+
+  adsManager.start();
 }
 
 function onAdEvent(adEvent) {

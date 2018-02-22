@@ -7,14 +7,15 @@
   <body>
     <div id="mainContainer">
       <div id="content">
-        <video id="contentElement">
+        <video id="contentElement" controls="true" autoplay="true">
           <source src="http://rmcdn.2mdn.net/Demo/vast_inspector/android.mp4"></source>
           <source src="http://rmcdn.2mdn.net/Demo/vast_inspector/android.webm"></source>
         </video>
       </div>
       <div id="adContainer"></div>
     </div>
-    <button id="playButton">Play</button>
+    <div><button id="requestAds">Request Ads</button></div>
+    <div><button id="stopButton">Stop Ads</button></div>
     <script type="text/javascript" src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
     <script type="text/javascript" src="ads.js"></script>
   </body>

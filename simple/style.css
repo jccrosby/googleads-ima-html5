@@ -18,7 +18,7 @@
   overflow: hidden;
 }
 
-#playButton {
+#playButton, #requestAds, #stopButton {
   margin-top:10px;
   vertical-align: top;
   width: 350px;
